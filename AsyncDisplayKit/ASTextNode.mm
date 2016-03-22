@@ -207,7 +207,13 @@ static NSArray *DefaultLinkAttributeNames = @[ NSLinkAttributeName ];
 - (void)setFrame:(CGRect)frame
 {
   [super setFrame:frame];
-  [self _invalidateRendererIfNeededForBoundsSize:frame.size];
+  if (!CGSizeEqualToSize(frame.size, _constrainedSize)) {
+    // Our bounds have changed to a size that is not identical to our constraining size,
+    // so our previous layout information is invalid, and TextKit may draw at the
+    // incorrect origin.
+    _constrainedSize = CGSizeMake(-INFINITY, -INFINITY);
+    [self _invalidateRenderer];
+  }
 }
 
 - (void)setBounds:(CGRect)bounds
